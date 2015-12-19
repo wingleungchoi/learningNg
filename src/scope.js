@@ -26,7 +26,7 @@ Scope.prototype.$digest = function() {
       watcher.listenerFn(newValue, 
         (oldValue === newValue ? newValue : oldValue),
       self);
-    };
+    }
   });
 };
 

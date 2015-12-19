@@ -7,43 +7,6 @@ describe("Scope", function() {
     expect(scope.aProperty).toBe(1);
   });
 
-  it("calls the watch function with the scope as the argument", function() {
-    var watchFn = jasmine.createSpy();
-    var listenerFn = function() { };
-    scope.$watch(watchFn, listenerFn);
-    scope.$digest();
-    expect(watchFn).toHaveBeenCalledWith(scope);
-  });
-
-  it("calls the listener function when the watched value changes", function() {
-    scope.someValue = 'a';
-    scope.counter = 0;
-    scope.$watch(
-      function(scope) { return scope.someValue; },
-      function(newValue, oldValue, scope) { scope.counter++; }
-    );
-    expect(scope.counter).toBe(0);
-    scope.$digest();
-    expect(scope.counter).toBe(1);
-    scope.$digest();
-    expect(scope.counter).toBe(1);
-    scope.someValue = 'b';
-    expect(scope.counter).toBe(1);
-    scope.$digest();
-    expect(scope.counter).toBe(2);
-  });
-
-  it("calls listener with new value as old value the frist time", function() {
-    scope.someValue = 123;
-    var oldValueGiven;
-    scope.$watch(
-      function(scope) {return scope.someValue; },
-      function(newValue, oldValue, scope) { oldValueGiven = oldValue; }
-    );
-    scope.$digest();
-    expect(oldValueGiven).toBe(123);
-  });
-
   describe("digest", function(){
     var scope;
     beforeEach(function(){
@@ -57,6 +20,53 @@ describe("Scope", function() {
       scope.$digest();
       expect(listenerFn).toHaveBeenCalled();
     });
+
+    it("calls the watch function with the scope as the argument", function() {
+      var watchFn = jasmine.createSpy();
+      var listenerFn = function() { };
+      scope.$watch(watchFn, listenerFn);
+      scope.$digest();
+      expect(watchFn).toHaveBeenCalledWith(scope);
+    });
+
+    it("calls the listener function when the watched value changes", function() {
+      scope.someValue = 'a';
+      scope.counter = 0;
+      scope.$watch(
+        function(scope) { return scope.someValue; },
+        function(newValue, oldValue, scope) { scope.counter++; }
+      );
+      expect(scope.counter).toBe(0);
+      scope.$digest();
+      expect(scope.counter).toBe(1);
+      scope.$digest();
+      expect(scope.counter).toBe(1);
+      scope.someValue = 'b';
+      expect(scope.counter).toBe(1);
+      scope.$digest();
+      expect(scope.counter).toBe(2);
+    });
+
+    it("calls listener with new value as old value the frist time", function() {
+      scope.someValue = 123;
+      var oldValueGiven;
+      scope.$watch(
+        function(scope) {return scope.someValue; },
+        function(newValue, oldValue, scope) { oldValueGiven = oldValue; }
+      );
+      scope.$digest();
+      expect(oldValueGiven).toBe(123);
+    });
+
+    it("may have watchers that omit the listener function", function(){
+      var watchFn = jasmine.createSpy().and.returnValue('something');
+      scope.$watch(watchFn);
+
+      scope.$digest();
+
+      expect(watchFn).toHaveBeenCalled();
+    });
+
   });
 });
 
