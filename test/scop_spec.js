@@ -83,7 +83,7 @@ describe("Scope", function() {
         function(scope) {return scope.nameUpper; },
         function(newValue, oldValue, scope) {
           if (newValue){
-            scope.initial = newValue.substring(0,1) + '_';
+            scope.initial = newValue.substring(0,1) + '.';
           }
         }
       );
@@ -100,6 +100,27 @@ describe("Scope", function() {
       scope.name = 'Bob';
       scope.$digest();
       expect(scope.initial).toBe('B.');
+    });
+
+    it("gives up on the watches after 10 iterations", function(){
+      scope.counterA = 0;
+      scope.counterB = 0;
+
+      scope.$watch(
+        function(scope) { return scope.counterA; },
+        function(newValue, oldValue, scope){
+          scope.counterB++;
+        }
+      );
+
+      scope.$watch(
+        function(scope) { return scope.counterB; },
+        function(newValue, oldValue, scope) {
+          scope.counterA++;
+        }
+      );
+
+      expect((function(){ scope.$digest(); })).toThrow();
     });
 
   });
