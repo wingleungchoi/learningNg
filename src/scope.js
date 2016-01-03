@@ -50,6 +50,12 @@ Scope.prototype.$digest = function(){
   var dirty;
   this.$$lastDirtyWatch = null;
   this.$beginPhase("$digest");
+
+  if (this.$$applyAsyncId) {
+    clearTimeout(this.$$applyAsyncId);
+    this.$$flushApplyAsync();
+  }
+
   do {
     while (this.$$asyncQueue.length) {
       var asyncTask = this.$$asyncQueue.shift();
@@ -119,12 +125,14 @@ Scope.prototype.$applyAsync = function(expr) {
   });
   if (self.$$applyAsyncId === null){
     self.$$applyAsyncId = setTimeout(function() {
-      self.$apply(function(){
-        while(self.$$applyAsyncQueue.length) {
-          self.$$applyAsyncQueue.shift()();
-        }
-        self.$$applyAsyncId = null;
-      });
+      self.$apply(_.bind(self.$$flushApplyAsync, self));
     },0);
   }
+};
+
+Scope.prototype.$$flushApplyAsync = function(){
+  while (this.$$applyAsyncQueue.length) {
+    this.$$applyAsyncQueue.shift()();
+  }
+  this.$$applyAsyncId = null;
 };
