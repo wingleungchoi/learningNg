@@ -23,6 +23,7 @@ Scope.prototype.$watch = function(watchFn, listenerFn, valueEq) {
     valueEq: !!valueEq,
     last: initWatchVal
   };
+  this.$$watchers.unshift(watcher);
   self.$$watchers.push(watcher);
   this.$$lastDirtyWatch = null;
   return function() {
