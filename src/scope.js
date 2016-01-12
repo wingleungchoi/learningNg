@@ -24,20 +24,19 @@ Scope.prototype.$watch = function(watchFn, listenerFn, valueEq) {
     last: initWatchVal
   };
   this.$$watchers.unshift(watcher);
-  self.$$watchers.push(watcher);
   this.$$lastDirtyWatch = null;
   return function() {
     var index = self.$$watchers.indexOf(watcher);
     if (index >= 0) {
       self.$$watchers.splice(index, 1);
-    };
-  }
+    }
+  };
 };
 
 Scope.prototype.$$digestOnce = function() {
   var self = this;
   var newValue, oldValue, dirty;
-  _.forEach(this.$$watchers, function(watcher){
+  _.forEachRight(this.$$watchers, function(watcher){
     try{
       newValue = watcher.watchFn(self);
       oldValue = watcher.last;
