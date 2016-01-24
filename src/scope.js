@@ -176,9 +176,15 @@ Scope.prototype.$watchGroup = function(watchFns, listenerFn){
   var self = this;
   var oldValues = new Array(watchFns.length);
   var newValues = new Array(watchFns.length);
+  var changeReactionScheduled = false;
   var firstRun = true;
 
-  var changeReactionScheduled = false;
+  if (watchFns.length === 0) {
+    self.$evalAsync(function() {
+      listenerFn(newValues, oldValues, self);
+    });
+    return;
+  }
 
   function watchGroupListener() {
     if (firstRun) {
@@ -190,8 +196,8 @@ Scope.prototype.$watchGroup = function(watchFns, listenerFn){
     changeReactionScheduled = false;
   }
 
-  _.forEach(watchFns, function(watchFn, i) {
-    self.$watch(watchFn, function(newValue, oldValue){
+  var destroyFunctions = _.map(watchFns, function(watchFn, i) {
+    return self.$watch(watchFn, function(newValue, oldValue){
       newValues[i] = newValue;
       oldValues[i] = oldValue;
       if (!changeReactionScheduled) {
@@ -200,4 +206,10 @@ Scope.prototype.$watchGroup = function(watchFns, listenerFn){
       };
     });
   });
+
+  return function() {
+    _.forEach(destroyFunctions, function(destroyFunction){
+      destroyFunction();
+    });
+  };
 };
