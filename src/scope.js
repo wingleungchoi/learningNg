@@ -180,10 +180,15 @@ Scope.prototype.$watchGroup = function(watchFns, listenerFn){
   var firstRun = true;
 
   if (watchFns.length === 0) {
+    var shouldCall = true;
     self.$evalAsync(function() {
-      listenerFn(newValues, oldValues, self);
+      if (shouldCall) {
+        listenerFn(newValues, oldValues, self);
+      }
     });
-    return;
+    return function(){
+      shouldCall = false;
+    };
   }
 
   function watchGroupListener() {
